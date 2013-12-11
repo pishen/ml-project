@@ -21,6 +21,8 @@ object Main {
     val featureFiles = extractFeature(rawFiles)
     println("svm-scale")
     val scaledFiles = scale(featureFiles)
+    println("grid.py")
+    grid(scaledFiles.head)
     
   }
 
@@ -34,13 +36,17 @@ object Main {
     filenames.map(_ + ".f")
   }
 
-  //use the first file as range base
   def scale(filenames: Seq[String]) = {
+    //use the first file as range base
     assert((Seq("./svm-scale", "-l", "0", "-s", "range", filenames.head) #> new File(filenames.head + ".s")).! == 0)
     filenames.tail.foreach(name => {
       assert((Seq("./svm-scale", "-l", "0", "-r", "range", name) #> new File(name + ".s")).! == 0)
     })
     filenames.map(_ + ".s")
+  }
+  
+  def grid(filename: String) = {
+    assert(Seq("./grid.py", "-svmtrain", "./svm-train", "-m", "1000", filename).! == 0)
   }
 
   //data parser
