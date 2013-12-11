@@ -13,7 +13,7 @@ object Main {
 
   def main(args: Array[String]): Unit = {
     //subset
-    assert(Seq("subset.py", "train-all", "1000", "validate", "train").! == 0)
+    assert(Seq("./subset.py", "train-all", "1000", "validate", "train").! == 0)
 
     val rawFiles = Seq("train", "validate", "test1")
     val featureFiles = extractFeature(rawFiles)
@@ -33,9 +33,9 @@ object Main {
 
   //use the first file as range base
   def scale(filenames: Seq[String]) = {
-    assert((Seq("svm-scale", "-s", "range", filenames.head) #> new File(filenames.head + ".s")).! == 0)
+    assert((Seq("./svm-scale", "-s", "range", filenames.head) #> new File(filenames.head + ".s")).! == 0)
     filenames.tail.foreach(name => {
-      assert((Seq("svm-scale", "-r", "range", name) #> new File(name + ".s")).! == 0)
+      assert((Seq("./svm-scale", "-r", "range", name) #> new File(name + ".s")).! == 0)
     })
     filenames.map(_ + ".s")
   }
