@@ -13,10 +13,13 @@ object Main {
 
   def main(args: Array[String]): Unit = {
     //subset
+    println("subset.py")
     assert(Seq("./subset.py", "train-all", "1000", "validate", "train").! == 0)
-
+    
     val rawFiles = Seq("train", "validate", "test1")
+    println("extract features")
     val featureFiles = extractFeature(rawFiles)
+    println("svm-scale")
     val scaledFiles = scale(featureFiles)
     
   }
