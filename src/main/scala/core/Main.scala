@@ -15,7 +15,7 @@ object Main {
     //subset
     println("subset.py")
     assert(Seq("./subset.py", "train-all", "1000", "validate", "train").! == 0)
-    
+
     val rawFiles = Seq("train", "validate", "test1")
     println("extract features")
     val featureFiles = extractFeature(rawFiles)
@@ -23,7 +23,7 @@ object Main {
     val scaledFiles = scale(featureFiles)
     println("grid.py")
     grid(scaledFiles.head)
-    
+
   }
 
   def extractFeature(filenames: Seq[String]) = {
@@ -44,9 +44,16 @@ object Main {
     })
     filenames.map(_ + ".s")
   }
-  
+
   def grid(filename: String) = {
-    assert(Seq("./grid.py", "-log2c", "-5,5,10", "-log2g", "\"null\"", "-svmtrain", "./svm-train", "-m", "1000", filename).! == 0)
+    assert(Seq(
+      "./grid.py",
+      "-log2c", "-5,5,10",
+      "-log2g", "1,1,1",
+      "-svmtrain", "./svm-train",
+      "-t", "0",
+      "-m", "1000",
+      filename).! == 0)
   }
 
   //data parser
