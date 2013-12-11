@@ -13,10 +13,10 @@ object Main {
 
   def main(args: Array[String]): Unit = {
     //subset
-    println("subset.py")
-    assert(Seq("./subset.py", "train-all", "1000", "validate", "train").! == 0)
+    /*println("subset.py")
+    assert(Seq("./subset.py", "train-all", "1000", "validate", "train").! == 0)*/
 
-    val rawFiles = Seq("train", "validate", "test1")
+    val rawFiles = Seq("train-all", "test1")
     println("extract features")
     val featureFiles = extractFeature(rawFiles)
     println("svm-scale")
@@ -48,11 +48,9 @@ object Main {
   def grid(filename: String) = {
     assert(Seq(
       "./grid.py",
-      "-log2c", "-5,5,10",
-      "-log2g", "1,1,1",
+      "-log2c", "-5,15,2",
+      "-log2g", "null",
       "-svmtrain", "./svm-train",
-      "-t", "0",
-      "-m", "1000",
       filename).! == 0)
   }
 
