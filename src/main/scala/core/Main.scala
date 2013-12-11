@@ -46,7 +46,7 @@ object Main {
   }
   
   def grid(filename: String) = {
-    assert(Seq("./grid.py", "-svmtrain", "./svm-train", "-m", "1000", filename).! == 0)
+    assert(Seq("./grid.py", "-log2c", "-5,5,10", "-log2g", "\"null\"", "-svmtrain", "./svm-train", "-m", "1000", filename).! == 0)
   }
 
   //data parser
