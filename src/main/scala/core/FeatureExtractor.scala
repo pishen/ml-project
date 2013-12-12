@@ -5,8 +5,7 @@ import scala.Array.canBuildFrom
 object FeatureExtractor {
   def apply(sample: Sample): Seq[Double] = {
     //TODO implement
-    //getProjection(sample.matrix) ++ getLostCorners(sample.matrix)
-    getCoarsePixels(sample.matrix) ++ getProjection(sample.matrix)
+    getProjection(sample.matrix) ++ getLostCorners(sample.matrix)
   }
 
   private def getCoarsePixels(matrix: Array[Array[Double]]) = {
