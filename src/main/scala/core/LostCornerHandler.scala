@@ -3,6 +3,7 @@ package core
 import scalax.io.Resource
 
 object LostCornerHandler {
+  
   def countLostCorner(filename: String) = {
     val res = Resource.fromFile(filename).lines().map { line =>
       val matrix = Array.ofDim[Double](122, 105)

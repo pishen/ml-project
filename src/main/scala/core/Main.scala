@@ -49,6 +49,7 @@ object Main {
   }
 
   def grid(trainName: String) = {
+    //TODO use process logger?
     val res = Seq(
       "./grid.py",
       "-log2c", "0,20,5",
@@ -62,13 +63,11 @@ object Main {
   }
   
   def svmTrain(trainName: String, cost: Double) = {
-    //TODO
     assert(Seq("./svm-train", "-c", cost.toString, "-q", trainName, trainName + ".m").! == 0)
     trainName + ".m"
   }
   
   def svmPredict(testName: String, modelName: String) = {
-    //TODO
     assert(Seq("./svm-predict", testName, modelName, "predict").! == 0)
     "predict"
   }
