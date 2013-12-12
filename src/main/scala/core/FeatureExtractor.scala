@@ -6,7 +6,7 @@ object FeatureExtractor {
   def apply(sample: Sample): Seq[Double] = {
     //TODO implement
     //getProjection(sample.matrix) ++ getLostCorners(sample.matrix)
-    getCoarsePixels(sample.matrix) ++ getProjection(sample.matrix)
+    getCoarsePixels(sample.matrix)
   }
 
   private def getCoarsePixels(matrix: Array[Array[Double]]) = {

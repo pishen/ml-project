@@ -53,7 +53,7 @@ object Main {
     val res = Seq(
       "./grid.py",
       "-log2c", "0,20,4",
-      "-log2g", "null",
+      "-log2g", "-15,0,3",
       "-svmtrain", "./svm-train",
       "-m", "1000",
       trainName).!!
