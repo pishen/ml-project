@@ -22,8 +22,11 @@ object Main {
     println("svm-scale")
     val scaledFiles = scale(featureFiles)
     println("grid.py")
-    grid(scaledFiles.head)
-
+    val c = grid(scaledFiles.head)
+    println("svm-train")
+    val model = svmTrain(scaledFiles.head, c)
+    println("svm-predict")
+    svmPredict(scaledFiles.last, model)
   }
 
   def extractFeature(filenames: Seq[String]) = {
@@ -45,13 +48,29 @@ object Main {
     filenames.map(_ + ".s")
   }
 
-  def grid(filename: String) = {
-    assert(Seq(
+  def grid(trainName: String) = {
+    val res = Seq(
       "./grid.py",
-      "-log2c", "-5,15,2",
+      "-log2c", "0,20,5",
       "-log2g", "null",
       "-svmtrain", "./svm-train",
-      filename).! == 0)
+      "-m", "1000",
+      trainName).!!
+    println(res)
+    //get the best c
+    res.split("\n").last.split(" ").head.toDouble
+  }
+  
+  def svmTrain(trainName: String, cost: Double) = {
+    //TODO
+    assert(Seq("./svm-train", "-c", cost.toString, "-q", trainName, trainName + ".m").! == 0)
+    trainName + ".m"
+  }
+  
+  def svmPredict(testName: String, modelName: String) = {
+    //TODO
+    assert(Seq("./svm-predict", testName, modelName, "predict").! == 0)
+    "predict"
   }
 
   //data parser
