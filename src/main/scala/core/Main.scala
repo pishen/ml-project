@@ -22,9 +22,9 @@ object Main {
     println("svm-scale")
     val scaledFiles = scale(featureFiles)
     println("grid.py")
-    val c = grid(scaledFiles.head)
+    val (cost, gamma) = grid(scaledFiles.head)
     println("svm-train")
-    val model = svmTrain(scaledFiles.head, c)
+    val model = svmTrain(scaledFiles.head, cost, gamma)
     println("svm-predict")
     svmPredict(scaledFiles.last, model)
   }
@@ -58,12 +58,21 @@ object Main {
       "-m", "1000",
       trainName).!!
     println(res)
-    //get the best c
-    res.split("\n").last.split(" ").head.toDouble
+    
+    //get the best cost
+    //res.split("\n").last.split(" ").head
+    
+    //get the best cost & gamma
+    val tokens = res.split("\n").last.split(" ")
+    (tokens(0), tokens(1))
   }
   
-  def svmTrain(trainName: String, cost: Double) = {
-    assert(Seq("./svm-train", "-c", cost.toString, "-q", trainName, trainName + ".m").! == 0)
+  def svmTrain(trainName: String, cost: String, gamma: String = null) = {
+    if(gamma != null){
+      assert(Seq("./svm-train", "-c", cost, "-g", gamma, "-q", trainName, trainName + ".m").! == 0)
+    }else{
+      assert(Seq("./svm-train", "-c", cost, "-q", trainName, trainName + ".m").! == 0)
+    }
     trainName + ".m"
   }
   
