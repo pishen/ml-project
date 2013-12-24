@@ -52,8 +52,8 @@ object Main {
     //TODO use process logger?
     val res = Seq(
       "./grid.py",
-      "-log2c", "0,20,4",
-      "-log2g", "-14,1,3",
+      "-log2c", "3,11,2",
+      "-log2g", "-4,0,1",
       "-svmtrain", "./svm-train",
       "-m", "1000",
       trainName).!!
