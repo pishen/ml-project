@@ -10,13 +10,9 @@ object FeatureExtractor {
   }
   
   private def quantize(matrix: Array[Array[Double]]): Seq[Double] = {
-    val ten = matrix.slice(1, 121).grouped(10).toSeq.map(rowGroup => {
-      rowGroup.map(_.slice(2, 102).grouped(10).toSeq.map(_.sum)).reduce(_.zip(_).map(p => p._1 + p._2))
+    matrix.slice(1, 121).grouped(5).toSeq.map(rowGroup => {
+      rowGroup.map(_.slice(2, 102).grouped(5).toSeq.map(_.sum)).reduce(_.zip(_).map(p => p._1 + p._2))
     }).reduceLeft((l, r) => l ++ r)
-    val five = matrix.slice(31, 91).grouped(5).toSeq.map(rowGroup => {
-      rowGroup.map(_.slice(27, 77).grouped(5).toSeq.map(_.sum)).reduce(_.zip(_).map(p => p._1 + p._2))
-    }).reduceLeft((l, r) => l ++ r)
-    ten ++ five
   }
 
   private def getProjection(matrix: Array[Array[Double]]) = {
