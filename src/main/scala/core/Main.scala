@@ -53,7 +53,7 @@ object Main {
     val res = Seq(
       "./grid.py",
       "-log2c", "0,20,4",
-      "-log2g", "-15,0,3",
+      "-log2g", "-16,1,3",
       "-svmtrain", "./svm-train",
       "-m", "1000",
       trainName).!!
@@ -95,7 +95,7 @@ object Main {
   }
 
   def encode(label: Int, features: Seq[Double]) = {
-    label + " " + features.zipWithIndex.filter(_._1 > 0.0).map(p => (p._2 + 1) + ":" + p._1).mkString(" ")
+    label + " " + features.zipWithIndex.filter(_._1 != 0.0).map(p => (p._2 + 1) + ":" + p._1).mkString(" ")
   }
 
 }
