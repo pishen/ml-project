@@ -5,9 +5,8 @@ import scala.Array.canBuildFrom
 object FeatureExtractor {
   def apply(sample: Sample): Seq[Double] = {
     //TODO implement
-    //getProjection(sample.matrix) ++ getLostCorners(sample.matrix)
-    //quantize(sample.matrix)
-    littleProjectionLength(subMatrixs(sample.matrix))
+    val subMxs = getSubMatrixs(sample.matrix)
+    littleProjectionLength(subMxs) ++ subMxs.map(_.map(_.sum).sum)
   }
   
   private def littleProjectionLength(subMatrixs: Seq[Seq[Seq[Double]]]) = {
@@ -19,16 +18,10 @@ object FeatureExtractor {
     }).reduceLeft((l, r) => l ++ r)
   }
 
-  private def subMatrixs(matrix: Array[Array[Double]]) = {
+  private def getSubMatrixs(matrix: Array[Array[Double]]) = {
     matrix.slice(1, 121).grouped(10).toSeq.map(rowGroup => {
       rowGroup.map(_.slice(2, 102).grouped(10).toSeq.map(arr => Seq(arr.toSeq)))
         .reduceLeft((l, r) => l.zip(r).map(p => p._1 ++ p._2))
-    }).reduceLeft((l, r) => l ++ r)
-  }
-
-  private def quantize(matrix: Array[Array[Double]]): Seq[Double] = {
-    matrix.slice(1, 121).grouped(10).toSeq.map(rowGroup => {
-      rowGroup.map(_.slice(2, 102).grouped(10).toSeq.map(_.sum)).reduce(_.zip(_).map(p => p._1 + p._2))
     }).reduceLeft((l, r) => l ++ r)
   }
 
