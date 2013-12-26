@@ -6,12 +6,29 @@ object FeatureExtractor {
   def apply(sample: Sample): Seq[Double] = {
     //TODO implement
     //getProjection(sample.matrix) ++ getLostCorners(sample.matrix)
-    quantize(sample.matrix)
+    //quantize(sample.matrix)
+    littleProjectionLength(subMatrixs(sample.matrix))
   }
   
+  private def littleProjectionLength(subMatrixs: Seq[Seq[Seq[Double]]]) = {
+    def twoNorm(v: Seq[Double]) = v.map(i => i * i).sum
+    subMatrixs.map(m => {
+      val yv = m.map(_.sum)
+      val xv = m.reduce(_.zip(_).map(p => p._1 + p._2))
+      Seq(twoNorm(yv), twoNorm(xv))
+    }).reduceLeft((l, r) => l ++ r)
+  }
+
+  private def subMatrixs(matrix: Array[Array[Double]]) = {
+    matrix.slice(1, 121).grouped(10).toSeq.map(rowGroup => {
+      rowGroup.map(_.slice(2, 102).grouped(10).toSeq.map(arr => Seq(arr.toSeq)))
+        .reduceLeft((l, r) => l.zip(r).map(p => p._1 ++ p._2))
+    }).reduceLeft((l, r) => l ++ r)
+  }
+
   private def quantize(matrix: Array[Array[Double]]): Seq[Double] = {
-    matrix.slice(1, 121).grouped(5).toSeq.map(rowGroup => {
-      rowGroup.map(_.slice(2, 102).grouped(5).toSeq.map(_.sum)).reduce(_.zip(_).map(p => p._1 + p._2))
+    matrix.slice(1, 121).grouped(10).toSeq.map(rowGroup => {
+      rowGroup.map(_.slice(2, 102).grouped(10).toSeq.map(_.sum)).reduce(_.zip(_).map(p => p._1 + p._2))
     }).reduceLeft((l, r) => l ++ r)
   }
 
