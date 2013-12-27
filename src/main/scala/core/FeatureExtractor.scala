@@ -6,8 +6,8 @@ object FeatureExtractor {
   def apply(sample: Sample): Seq[Double] = {
     //TODO implement
     val subMxs = getSubMatrixs(sample.matrix)
-    //littleProjectionLength(subMxs) ++ subMxs.map(_.map(_.sum).sum)
-    divide4Parts(subMxs)
+    littleProjectionLength(subMxs) ++ subMxs.map(_.map(_.sum).sum)
+    //divide4Parts(subMxs)
   }
   
   private def divide4Parts(subMatrixs: Seq[Seq[Seq[Double]]]) = {
@@ -28,8 +28,8 @@ object FeatureExtractor {
   }
 
   private def getSubMatrixs(matrix: Array[Array[Double]]) = {
-    matrix.slice(1, 121).grouped(60).toSeq.map(rowGroup => {
-      rowGroup.map(_.slice(2, 102).grouped(50).toSeq.map(arr => Seq(arr.toSeq)))
+    matrix.slice(1, 121).grouped(20).toSeq.map(rowGroup => {
+      rowGroup.map(_.slice(2, 102).grouped(20).toSeq.map(arr => Seq(arr.toSeq)))
         .reduceLeft((l, r) => l.zip(r).map(p => p._1 ++ p._2))
     }).reduceLeft((l, r) => l ++ r)
   }
