@@ -28,8 +28,8 @@ object FeatureExtractor {
   }
 
   private def getSubMatrixs(matrix: Array[Array[Double]]) = {
-    matrix.slice(1, 121).grouped(20).toSeq.map(rowGroup => {
-      rowGroup.map(_.slice(2, 102).grouped(20).toSeq.map(arr => Seq(arr.toSeq)))
+    matrix.slice(1, 121).grouped(15).toSeq.map(rowGroup => {
+      rowGroup.map(_.slice(1, 103).grouped(17).toSeq.map(arr => Seq(arr.toSeq)))
         .reduceLeft((l, r) => l.zip(r).map(p => p._1 ++ p._2))
     }).reduceLeft((l, r) => l ++ r)
   }
