@@ -6,7 +6,16 @@ object FeatureExtractor {
   def apply(sample: Sample): Seq[Double] = {
     //TODO implement
     val subMxs = getSubMatrixs(sample.matrix)
-    littleProjectionLength(subMxs) ++ subMxs.map(_.map(_.sum).sum)
+    //littleProjectionLength(subMxs) ++ subMxs.map(_.map(_.sum).sum)
+    divide4Parts(subMxs)
+  }
+  
+  private def divide4Parts(subMatrixs: Seq[Seq[Seq[Double]]]) = {
+    subMatrixs.map(m => {
+      val yv = m.map(_.sum)
+      val xv = m.reduce(_.zip(_).map(p => p._1 + p._2))
+      yv ++ xv
+    }).reduceLeft((l, r) => l ++ r)
   }
   
   private def littleProjectionLength(subMatrixs: Seq[Seq[Seq[Double]]]) = {
@@ -19,18 +28,14 @@ object FeatureExtractor {
   }
 
   private def getSubMatrixs(matrix: Array[Array[Double]]) = {
-    matrix.slice(1, 121).grouped(10).toSeq.map(rowGroup => {
-      rowGroup.map(_.slice(2, 102).grouped(10).toSeq.map(arr => Seq(arr.toSeq)))
+    matrix.slice(1, 121).grouped(60).toSeq.map(rowGroup => {
+      rowGroup.map(_.slice(2, 102).grouped(50).toSeq.map(arr => Seq(arr.toSeq)))
         .reduceLeft((l, r) => l.zip(r).map(p => p._1 ++ p._2))
     }).reduceLeft((l, r) => l ++ r)
   }
-
-  private def getProjection(matrix: Array[Array[Double]]) = {
-    val yVector = matrix.map(row => row.sum)
-    val xVector = for (j <- matrix.head.indices) yield {
-      (for (i <- matrix.indices) yield matrix(i)(j)).sum
-    }
-    xVector ++ yVector
+  
+  private def getScaledMatrix(matrix: Array[Array[Double]]) = {
+    
   }
 
   private def getLostCorners(matrix: Array[Array[Double]]) = {
