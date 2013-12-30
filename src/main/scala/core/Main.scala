@@ -17,10 +17,10 @@ object Main {
     assert(Seq("./subset.py", "train-all", "1000", "validate", "train").! == 0)*/
 
     val rawFiles = Seq("train-all", "test1")
-    println("extract features")
-    val featureFiles = extractFeature(rawFiles)
+    //println("extract features")
+    //val featureFiles = extractFeature(rawFiles)
     println("svm-scale")
-    val scaledFiles = scale(featureFiles)
+    val scaledFiles = scale(rawFiles)
     println("grid.py")
     val (cost, gamma) = grid(scaledFiles.head)
     println("svm-train")
