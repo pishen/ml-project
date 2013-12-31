@@ -41,9 +41,9 @@ object Main {
 
   def scale(filenames: Seq[String]) = {
     //use the first file as range base
-    assert((Seq("./svm-scale", "-l", "0", "-s", "range", filenames.head) #> new File(filenames.head + ".s")).! == 0)
+    assert((Seq("./svm-scale", "-s", "range", filenames.head) #> new File(filenames.head + ".s")).! == 0)
     filenames.tail.foreach(name => {
-      assert((Seq("./svm-scale", "-l", "0", "-r", "range", name) #> new File(name + ".s")).! == 0)
+      assert((Seq("./svm-scale", "-r", "range", name) #> new File(name + ".s")).! == 0)
     })
     filenames.map(_ + ".s")
   }
