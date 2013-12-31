@@ -11,11 +11,22 @@ object FeatureExtractor {
 
   private def littleProjectionLength(subMatrixs: Seq[Seq[Seq[Double]]]) = {
     def twoNorm(v: Seq[Double]) = v.map(i => i * i).sum
-    subMatrixs.map(m => {
+    val ninety = subMatrixs.flatMap(m => {
       val yv = m.map(_.sum)
       val xv = m.reduce(_.zip(_).map(p => p._1 + p._2))
       Seq(twoNorm(yv), twoNorm(xv))
-    }).reduceLeft((l, r) => l ++ r)
+    })
+    val fourtyFive = {
+      val base = Seq.fill(subMatrixs.head.size, subMatrixs.head.size - 1)(0.0).zipWithIndex
+      subMatrixs.flatMap(m => {
+        val sw = base.map { case (zeros, i) => zeros.patch(i, m(i), 0) }
+          .reduce(_.zip(_).map(p => p._1 + p._2))
+        val se = base.map { case (zeros, i) => zeros.patch(zeros.size - i, m(i), 0) }
+          .reduce(_.zip(_).map(p => p._1 + p._2))
+        Seq(twoNorm(sw), twoNorm(se))
+      })
+    }
+    ninety ++ fourtyFive
   }
 
   private def getSubMatrixs(matrix: Array[Array[Double]]) = {
