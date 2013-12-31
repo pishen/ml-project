@@ -16,7 +16,7 @@ object Main {
     /*println("subset.py")
     assert(Seq("./subset.py", "train-all", "1000", "validate", "train").! == 0)*/
 
-    val rawFiles = Seq("train-all", "test1")
+    val rawFiles = Seq("PCA_1000_train.libsvm", "PCA_1000_test.libsvm")
     //println("extract features")
     //val featureFiles = extractFeature(rawFiles)
     println("svm-scale")
