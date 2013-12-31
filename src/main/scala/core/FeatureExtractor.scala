@@ -41,7 +41,7 @@ object FeatureExtractor {
     val bottom = matrix.lastIndexWhere(_.find(_ > 0.3).nonEmpty)
     val left = matrix.head.indices.indexWhere(j => matrix.map(_(j)).find(_ > 0.3).nonEmpty)
     val right = matrix.head.indices.lastIndexWhere(j => matrix.map(_(j)).find(_ > 0.3).nonEmpty)
-    if (top == -1) matrix
+    if (top == -1) Array.fill(120, 120)(0.0)
     else {
       val height = bottom - top
       val width = right - left
