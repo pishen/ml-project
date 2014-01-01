@@ -3,8 +3,7 @@ package core
 import java.io.File
 import java.io.FileWriter
 
-import scala.annotation.elidable
-import scala.annotation.elidable.ASSERTION
+import scala.math.pow
 import scala.sys.process.stringSeqToProcess
 
 import scalax.io.Resource
@@ -12,36 +11,21 @@ import scalax.io.Resource
 object Main {
 
   def main(args: Array[String]): Unit = {
-    //subset
-    /*println("subset.py")
-    assert(Seq("./subset.py", "train-all", "1000", "validate", "train").! == 0)*/
-
-    val rawFiles = Seq("ml2013final_train.dat", "ml2013final_test1.nolabel.dat")
-    rawFiles.foreach(filename => {
-      val input = Resource.fromFile(filename).lines()
-      Resource.fromWriter(new FileWriter(filename + ".rc")).writeStrings({
-        input.map(decode _).zipWithIndex.map(p => {
-          val s = p._1
-          println("converting " + p._2)
-          val res = for(i <- s.matrix.indices; j <- s.matrix.head.indices) yield {
-            "(" + i + "," + j + "):" + s.matrix(i)(j)
-          }
-          s.label + " " + res.mkString(" ")
-        })
-      }, "\n")
-    })
     
+    val rawFiles = Seq("PCA_1000_train.libsvm", "PCA_1000_test.libsvm")
     
-    /*println("extract features")
-    val featureFiles = extractFeature(rawFiles)
     println("svm-scale")
-    val scaledFiles = scale(featureFiles)
-    println("grid.py")
-    val (cost, gamma) = grid(scaledFiles.head)
-    println("svm-train")
-    val model = svmTrain(scaledFiles.head, cost, gamma)
+    val scaledFiles = scale(rawFiles)
+    
+    println("polyCV")
+    val (params, accu) = polyCV(scaledFiles.head)
+    println("best CV: " + accu)
+    
+    println("polyTrain")
+    val model = polyTrain(scaledFiles.head, params)
+    
     println("svm-predict")
-    svmPredict(scaledFiles.last, model)*/
+    svmPredict(scaledFiles.last, model)
   }
 
   def extractFeature(filenames: Seq[String]) = {
@@ -63,6 +47,52 @@ object Main {
     filenames.map(_ + ".s")
   }
 
+  case class Params(gamma: Double, degree: Int, cost: Double)
+  def polyCV(trainName: String) = {
+    def svmCV(params: Params) = {
+      val res = Seq(
+        "./svm-train",
+        "-t", "1",
+        "-d", params.degree.toString,
+        "-g", params.gamma.toString,
+        "-r", "1",
+        "-c", params.cost.toString,
+        "-v", "5",
+        "-m", "1000",
+        trainName).!!
+      res.split("\n").last.split(" ").last.init.toDouble / 100
+    }
+    val gamma = 0.001
+    val degrees = Seq(2)
+    val costs = Seq(8).map(pow(2, _))
+
+    val ress = for (degree <- degrees; cost <- costs) yield {
+      val params = Params(gamma, degree, cost)
+      println("gamma: " + gamma + " degree: " + degree + " cost: " + cost)
+      (params, svmCV(params))
+    }
+    val line1 = costs.map("c=" + _).mkString(" ")
+    val lines = degrees.map(d => {
+      "d=" + d + " " + ress.filter(_._1.degree == d).sortBy(_._1.cost).map(_._2).mkString(" ")
+    })
+    Resource.fromWriter(new FileWriter(trainName + ".poly")).writeStrings(line1 +: lines, "\n")
+
+    ress.maxBy(_._2)
+  }
+
+  def polyTrain(trainName: String, params: Params) = {
+    assert(Seq(
+      "./svm-train",
+      "-t", "1",
+      "-d", params.degree.toString,
+      "-g", params.gamma.toString,
+      "-r", "1",
+      "-c", params.cost.toString,
+      "-m", "1000",
+      trainName, trainName + ".m").! == 0)
+    trainName + ".m"
+  }
+
   def grid(trainName: String) = {
     //TODO use process logger?
     val res = Seq(
@@ -73,24 +103,24 @@ object Main {
       "-m", "1000",
       trainName).!!
     println(res)
-    
+
     //get the best cost
     //res.split("\n").last.split(" ").head
-    
+
     //get the best cost & gamma
     val tokens = res.split("\n").last.split(" ")
     (tokens(0), tokens(1))
   }
-  
+
   def svmTrain(trainName: String, cost: String, gamma: String = null) = {
-    if(gamma != null){
+    if (gamma != null) {
       assert(Seq("./svm-train", "-c", cost, "-g", gamma, "-q", trainName, trainName + ".m").! == 0)
-    }else{
+    } else {
       assert(Seq("./svm-train", "-c", cost, "-q", trainName, trainName + ".m").! == 0)
     }
     trainName + ".m"
   }
-  
+
   def svmPredict(testName: String, modelName: String) = {
     assert(Seq("./svm-predict", testName, modelName, "predict").! == 0)
     "predict"
