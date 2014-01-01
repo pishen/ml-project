@@ -16,8 +16,23 @@ object Main {
     /*println("subset.py")
     assert(Seq("./subset.py", "train-all", "1000", "validate", "train").! == 0)*/
 
-    val rawFiles = Seq("train-all", "test1")
-    println("extract features")
+    val rawFiles = Seq("ml2013final_train.dat", "ml2013final_test1.nolabel.dat")
+    rawFiles.foreach(filename => {
+      val input = Resource.fromFile(filename).lines()
+      Resource.fromWriter(new FileWriter(filename + ".rc")).writeStrings({
+        input.map(decode _).zipWithIndex.map(p => {
+          val s = p._1
+          println("converting " + p._2)
+          val res = for(i <- s.matrix.indices; j <- s.matrix.head.indices) yield {
+            "(" + i + "," + j + "):" + s.matrix(i)(j)
+          }
+          s.label + " " + res.mkString(" ")
+        })
+      }, "\n")
+    })
+    
+    
+    /*println("extract features")
     val featureFiles = extractFeature(rawFiles)
     println("svm-scale")
     val scaledFiles = scale(featureFiles)
@@ -26,7 +41,7 @@ object Main {
     println("svm-train")
     val model = svmTrain(scaledFiles.head, cost, gamma)
     println("svm-predict")
-    svmPredict(scaledFiles.last, model)
+    svmPredict(scaledFiles.last, model)*/
   }
 
   def extractFeature(filenames: Seq[String]) = {
