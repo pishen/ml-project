@@ -11,19 +11,16 @@ import scalax.io.Resource
 object Main {
 
   def main(args: Array[String]): Unit = {
-    
-    val rawFiles = Seq("PCA_1000_train.libsvm", "PCA_1000_test.libsvm")
-    
-    println("svm-scale")
-    val scaledFiles = scale(rawFiles)
-    
+
+    val scaledFiles = Seq("PCA_1000_train.libsvm.s", "PCA_1000_test.libsvm.s")
+
     println("polyCV")
     val (params, accu) = polyCV(scaledFiles.head)
     println("best CV: " + accu)
-    
+
     println("polyTrain")
     val model = polyTrain(scaledFiles.head, params)
-    
+
     println("svm-predict")
     svmPredict(scaledFiles.last, model)
   }
@@ -63,8 +60,8 @@ object Main {
       res.split("\n").last.split(" ").last.init.toDouble / 100
     }
     val gamma = 0.001
-    val degrees = Seq(2)
-    val costs = Seq(8).map(pow(2, _))
+    val degrees = Seq(2, 3, 4, 5)
+    val costs = Seq(2, 4, 6, 8).map(pow(2, _))
 
     val ress = for (degree <- degrees; cost <- costs) yield {
       val params = Params(gamma, degree, cost)
@@ -81,7 +78,7 @@ object Main {
   }
 
   def polyTrain(trainName: String, params: Params) = {
-    assert(Seq(
+    Seq(
       "./svm-train",
       "-t", "1",
       "-d", params.degree.toString,
@@ -89,7 +86,7 @@ object Main {
       "-r", "1",
       "-c", params.cost.toString,
       "-m", "1000",
-      trainName, trainName + ".m").! == 0)
+      trainName, trainName + ".m").!!
     trainName + ".m"
   }
 
