@@ -11,26 +11,30 @@ import scalax.io.Resource
 object Main {
 
   def main(args: Array[String]): Unit = {
-
-    val scaledFiles = Seq("PCA_1000_train.libsvm", "PCA_1000_test.libsvm")
-
-    println("polyCV")
-    val (params, accu) = polyCV(scaledFiles.head)
-    println("best CV: " + accu)
-
-    println("polyTrain")
-    val model = polyTrain(scaledFiles.head, params)
-
+    //105x122
+    Resource.fromFile("train-all").lines().foreach(l => {
+      val sample = decode(l)
+      println(sample.label)
+      LostCornerHandler.detectAndSave(sample, l)
+    })
+    /*val rawFiles = Seq("train-all", "test1")
+    println("extract features")
+    val featureFiles = extractFeature(rawFiles)
+    println("svm-scale")
+    val scaledFiles = scale(featureFiles)
+    println("grid.py")
+    val (cost, gamma) = grid(scaledFiles.head)
+    println("svm-train")
+    val model = svmTrain(scaledFiles.head, cost, gamma)
     println("svm-predict")
-    svmPredict(scaledFiles.last, model)
+    svmPredict(scaledFiles.last, model)*/
   }
 
   def extractFeature(filenames: Seq[String]) = {
     filenames.foreach(filename => {
       val input = Resource.fromFile(filename).lines()
       Resource.fromWriter(new FileWriter(filename + ".f")).writeStrings({
-        input.map(decode _).map(s => (s.label, FeatureExtractor(s))).filter(_._2.nonEmpty)
-        .map(p => encode(p._1, p._2.get))
+        input.map(decode _).map(s => encode(s.label, FeatureExtractor(s)))
       }, "\n")
     })
     filenames.map(_ + ".f")
@@ -43,64 +47,6 @@ object Main {
       assert((Seq("./svm-scale", "-l", "0", "-r", "range", name) #> new File(name + ".s")).! == 0)
     })
     filenames.map(_ + ".s")
-  }
-
-  case class Params(gamma: Double, degree: Int, cost: Double)
-  def polyCV(trainName: String) = {
-    def svmCV(params: Params) = {
-      val res = Seq(
-        "./svm-train",
-        "-t", "1",
-        "-d", params.degree.toString,
-        "-g", params.gamma.toString,
-        "-r", "1",
-        "-c", params.cost.toString,
-        "-v", "5",
-        "-m", "1000",
-        trainName).!!
-      res.split("\n").last.split(" ").last.init.toDouble / 100
-    }
-    val gamma = 0.001
-    val degrees = Seq(2, 3, 4)
-    val costs = Seq(4, 6, 8, 10).map(pow(2, _))
-
-    val ress = for (degree <- degrees; cost <- costs) yield {
-      val params = Params(gamma, degree, cost)
-      println("gamma: " + gamma + " degree: " + degree + " cost: " + cost)
-      (params, svmCV(params))
-    }
-    val line1 = costs.map("c=" + _).mkString(" ")
-    val lines = degrees.map(d => {
-      "d=" + d + " " + ress.filter(_._1.degree == d).sortBy(_._1.cost).map(_._2).mkString(" ")
-    })
-    Resource.fromWriter(new FileWriter(trainName + ".poly")).writeStrings(line1 +: lines, "\n")
-
-    ress.maxBy(_._2)
-  }
-
-  def polyTrain(trainName: String, params: Params) = {
-    Seq(
-      "./svm-train",
-      "-t", "1",
-      "-d", params.degree.toString,
-      /*"-g", params.gamma.toString,
-      "-r", "1",*/
-      "-c", params.cost.toString,
-      "-m", "1000",
-      trainName, trainName + ".m").!!
-    trainName + ".m"
-  }
-  
-  def linCV(trainName: String) = {
-    def liblinear(cost: Double) = {
-      val res = Seq("./train", "-c", cost.toString, "-v", "5", trainName).!!
-      println(res)
-    }
-    val costs = Seq(0).map(pow(2, _))
-    val ress = for(c <- costs) yield {
-      println("cost: " + c)
-      (c, liblinear(c))
-    }
   }
 
   def grid(trainName: String) = {
