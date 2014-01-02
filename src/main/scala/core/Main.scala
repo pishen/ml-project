@@ -12,7 +12,7 @@ object Main {
 
   def main(args: Array[String]): Unit = {
 
-    val scaledFiles = Seq("PCA_1000_train.libsvm.s", "PCA_1000_test.libsvm.s")
+    val scaledFiles = Seq("PCA_1000_train.libsvm", "PCA_1000_test.libsvm")
 
     println("polyCV")
     val (params, accu) = polyCV(scaledFiles.head)
