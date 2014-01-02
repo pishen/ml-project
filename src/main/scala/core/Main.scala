@@ -34,7 +34,11 @@ object Main {
     filenames.foreach(filename => {
       val input = Resource.fromFile(filename).lines()
       Resource.fromWriter(new FileWriter(filename + ".f")).writeStrings({
-        input.map(decode _).map(s => encode(s.label, FeatureExtractor(s)))
+        input.map(decode _).zipWithIndex.map {
+          case (s, i) =>
+            println(i)
+            encode(s.label, FeatureExtractor(s))
+        }
       }, "\n")
     })
     filenames.map(_ + ".f")
