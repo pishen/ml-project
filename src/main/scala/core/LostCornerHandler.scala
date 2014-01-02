@@ -8,14 +8,14 @@ object LostCornerHandler {
 
   def detectAndSave(s: Sample, raw: String) = {
     //filename: label-lostCorner
-    if (s.lost != 4) Resource.fromFile(s.label + "-" + s.lost).write(raw + "\n")
+    if (s.lost != 4) Resource.fromFile("corner/" + s.label + "-" + s.lost).write(raw + "\n")
   }
 
   def tryFillCorner(s: Sample) = {
     if (s.lost == 4) s
     else {
       val rescues = (0 to 3).filter(_ != s.lost)
-        .map(l => s.label + "-" + l)
+        .map(l => "corner/" + s.label + "-" + l)
         .flatMap(Resource.fromFile(_).lines().toSeq)
         .map(Main.decode(_))
       rescues.map(combineAndDistance(s, _)).minBy(_._2)._1
