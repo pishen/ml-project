@@ -38,7 +38,6 @@ object FeatureExtractor {
     val bottom = sample.bottom
     val left = sample.left
     val right = sample.right
-    assert(top != -1 && left != -1)
     if (top == -1) Array.fill(120, 120)(0.0)
     else {
       val height = bottom - top
