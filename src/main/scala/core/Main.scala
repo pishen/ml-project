@@ -12,15 +12,15 @@ object Main {
 
   def main(args: Array[String]): Unit = {
 
-    val scaledFiles = Seq("PCA_1000_train.libsvm", "PCA_1000_test.libsvm")
-
-    println("polyCV")
-    val (params, accu) = polyCV(scaledFiles.head)
-    println("best CV: " + accu)
-
-    println("polyTrain")
-    val model = polyTrain(scaledFiles.head, params)
-
+    val rawFiles = Seq("train-all", "test1")
+    println("extract features")
+    val featureFiles = extractFeature(rawFiles)
+    println("svm-scale")
+    val scaledFiles = scale(featureFiles)
+    println("grid.py")
+    val (cost, gamma) = grid(scaledFiles.head)
+    println("svm-train")
+    val model = svmTrain(scaledFiles.head, cost, gamma)
     println("svm-predict")
     svmPredict(scaledFiles.last, model)
   }
@@ -29,7 +29,8 @@ object Main {
     filenames.foreach(filename => {
       val input = Resource.fromFile(filename).lines()
       Resource.fromWriter(new FileWriter(filename + ".f")).writeStrings({
-        input.map(decode _).map(s => encode(s.label, FeatureExtractor(s)))
+        input.map(decode _).map(s => (s.label, FeatureExtractor(s))).filter(_._2.nonEmpty)
+        .map(p => encode(p._1, p._2.get))
       }, "\n")
     })
     filenames.map(_ + ".f")
