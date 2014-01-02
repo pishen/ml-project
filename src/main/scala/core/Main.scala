@@ -12,12 +12,12 @@ object Main {
 
   def main(args: Array[String]): Unit = {
     //105x122
-    Resource.fromFile("train-all").lines().foreach(l => {
+    /*Resource.fromFile("train-all").lines().foreach(l => {
       val sample = decode(l)
       println(sample.label)
       LostCornerHandler.detectAndSave(sample, l)
-    })
-    /*val rawFiles = Seq("train-all", "test1")
+    })*/
+    val rawFiles = Seq("train-all", "test1")
     println("extract features")
     val featureFiles = extractFeature(rawFiles)
     println("svm-scale")
@@ -27,7 +27,7 @@ object Main {
     println("svm-train")
     val model = svmTrain(scaledFiles.head, cost, gamma)
     println("svm-predict")
-    svmPredict(scaledFiles.last, model)*/
+    svmPredict(scaledFiles.last, model)
   }
 
   def extractFeature(filenames: Seq[String]) = {
