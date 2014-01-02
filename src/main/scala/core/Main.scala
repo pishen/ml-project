@@ -51,8 +51,8 @@ object Main {
         "./svm-train",
         "-t", "1",
         "-d", params.degree.toString,
-        "-g", params.gamma.toString,
-        "-r", "1",
+        /*"-g", params.gamma.toString,
+        "-r", "1",*/
         "-c", params.cost.toString,
         "-v", "5",
         "-m", "1000",
@@ -60,8 +60,8 @@ object Main {
       res.split("\n").last.split(" ").last.init.toDouble / 100
     }
     val gamma = 0.001
-    val degrees = Seq(2, 3, 4, 5)
-    val costs = Seq(2, 4, 6, 8).map(pow(2, _))
+    val degrees = Seq(2, 3, 4)
+    val costs = Seq(4, 6, 8, 10).map(pow(2, _))
 
     val ress = for (degree <- degrees; cost <- costs) yield {
       val params = Params(gamma, degree, cost)
@@ -82,8 +82,8 @@ object Main {
       "./svm-train",
       "-t", "1",
       "-d", params.degree.toString,
-      "-g", params.gamma.toString,
-      "-r", "1",
+      /*"-g", params.gamma.toString,
+      "-r", "1",*/
       "-c", params.cost.toString,
       "-m", "1000",
       trainName, trainName + ".m").!!
