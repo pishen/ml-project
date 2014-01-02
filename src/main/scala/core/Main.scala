@@ -12,15 +12,15 @@ object Main {
 
   def main(args: Array[String]): Unit = {
 
-    val rawFiles = Seq("train-all", "test1")
-    println("extract features")
-    val featureFiles = extractFeature(rawFiles)
-    println("svm-scale")
-    val scaledFiles = scale(featureFiles)
-    println("grid.py")
-    val (cost, gamma) = grid(scaledFiles.head)
-    println("svm-train")
-    val model = svmTrain(scaledFiles.head, cost, gamma)
+    val scaledFiles = Seq("PCA_1000_train.libsvm", "PCA_1000_test.libsvm")
+
+    println("polyCV")
+    val (params, accu) = polyCV(scaledFiles.head)
+    println("best CV: " + accu)
+
+    println("polyTrain")
+    val model = polyTrain(scaledFiles.head, params)
+
     println("svm-predict")
     svmPredict(scaledFiles.last, model)
   }
@@ -52,8 +52,8 @@ object Main {
         "./svm-train",
         "-t", "1",
         "-d", params.degree.toString,
-        /*"-g", params.gamma.toString,
-        "-r", "1",*/
+        "-g", params.gamma.toString,
+        "-r", "1",
         "-c", params.cost.toString,
         "-v", "5",
         "-m", "1000",
@@ -90,6 +90,18 @@ object Main {
       trainName, trainName + ".m").!!
     trainName + ".m"
   }
+  
+  def linCV(trainName: String) = {
+    def liblinear(cost: Double) = {
+      val res = Seq("./train", "-c", cost.toString, "-v", "5", trainName).!!
+      println(res)
+    }
+    val costs = Seq(0).map(pow(2, _))
+    val ress = for(c <- costs) yield {
+      println("cost: " + c)
+      (c, liblinear(c))
+    }
+  }
 
   def grid(trainName: String) = {
     //TODO use process logger?
@@ -120,8 +132,8 @@ object Main {
   }
 
   def svmPredict(testName: String, modelName: String) = {
-    assert(Seq("./svm-predict", testName, modelName, "predict").! == 0)
-    "predict"
+    assert(Seq("./svm-predict", testName, modelName, testName + ".p").! == 0)
+    testName + ".p"
   }
 
   //data parser
