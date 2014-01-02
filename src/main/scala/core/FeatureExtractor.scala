@@ -39,19 +39,21 @@ object FeatureExtractor {
     val left = sample.left
     val right = sample.right
     assert(top != -1 && left != -1)
-
-    val height = bottom - top
-    val width = right - left
-    val edgeLength = height max width
-    val baseI = (top + bottom) / 2 - edgeLength / 2
-    val baseJ = (left + right) / 2 - edgeLength / 2
-    Array.tabulate(120, 120)((i, j) => {
-      try {
-        sample.matrix(baseI + ((i / 120.0) * edgeLength).toInt)(baseJ + ((j / 120.0) * edgeLength).toInt)
-      } catch {
-        case ex: Exception => 0.0
-      }
-    })
+    if (top == -1) Array.fill(120, 120)(0.0)
+    else {
+      val height = bottom - top
+      val width = right - left
+      val edgeLength = height max width
+      val baseI = (top + bottom) / 2 - edgeLength / 2
+      val baseJ = (left + right) / 2 - edgeLength / 2
+      Array.tabulate(120, 120)((i, j) => {
+        try {
+          sample.matrix(baseI + ((i / 120.0) * edgeLength).toInt)(baseJ + ((j / 120.0) * edgeLength).toInt)
+        } catch {
+          case ex: Exception => 0.0
+        }
+      })
+    }
   }
 
 }
