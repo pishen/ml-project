@@ -12,15 +12,7 @@ object Main {
 
   def main(args: Array[String]): Unit = {
     //105x122
-    def animal(l: Int) = Seq("鼠", "牛", "虎", "兔", "龍", "蛇", "馬", "羊", "猴", "雞", "狗", "豬")(l - 1)
-    val test1 = Resource.fromFile("test1.f.s").lines().toSeq.map(_.split(" ").head)
-    val test1P = Resource.fromFile("test1.f.s.p").lines().toSeq
-    val out = test1P.zip(test1).zipWithIndex
-      .filter(p => p._1._1 != p._1._2)
-      .map(p => p._2 + " predict:" + animal(p._1._1.toInt) + " ans:" + animal(p._1._2.toInt))
-    Resource.fromWriter(new FileWriter("test1.err")).writeStrings(out, "\n")
-
-    /*val rawFiles = Seq("train1", "train-all", "test1", "test2.nolabel")
+    val rawFiles = Seq("train1", "train-all", "test1", "test2.nolabel")
     println("extract features")
     val featureFiles = extractFeature(rawFiles)
     println("svm-scale")
@@ -34,7 +26,7 @@ object Main {
     println("svm-train on train1")
     val model1 = svmTrain(scaledFiles(0), cost, gamma)
     println("svm-predict on test1")
-    svmPredict(scaledFiles(2), model1)*/
+    svmPredict(scaledFiles(2), model1)
   }
 
   def extractFeature(filenames: Seq[String]) = {
@@ -101,7 +93,7 @@ object Main {
       val value = lr.last.toDouble
       matrix(index / 105)(index % 105) = value
     }
-    Sample(tokens.head.toInt, matrix)
+    Sample(tokens.head.toInt, matrix.map(_.toSeq).toSeq)
   }
 
   def encode(label: Int, features: Seq[Double]) = {

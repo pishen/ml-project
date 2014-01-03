@@ -1,6 +1,6 @@
 package core
 
-case class Sample(label: Int, matrix: Array[Array[Double]]) {
+case class Sample(label: Int, matrix: Seq[Seq[Double]]) {
   lazy val top =
     matrix.indexWhere(_.find(_ > FeatureExtractor.threshold).nonEmpty)
   lazy val bottom =

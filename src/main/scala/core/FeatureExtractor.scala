@@ -4,26 +4,37 @@ import scala.Array.canBuildFrom
 
 object FeatureExtractor {
   val threshold = 0.5
-  
+
   def apply(sample: Sample) = {
-    val subMxs = getSubMatrixs(getScaledMatrix(sample))
-    littleProjectionLength(subMxs) ++ subMxs.map(_.map(_.sum).sum)
+    val scaledMatrix = getScaledMatrix(sample)
+    val subMatrices = getSubMatrices(scaledMatrix)
+    subMatrices.flatMap(projectionWeight) ++
+    subMatrices.flatMap(crossCount) ++
+    subMatrices.map(_.map(_.sum).sum)
   }
 
-  private def littleProjectionLength(subMatrixs: Seq[Seq[Seq[Double]]]) = {
+  private def projectionWeight(matrix: Seq[Seq[Double]]) = {
     def twoNorm(v: Seq[Double]) = v.map(i => i * i).sum
-    subMatrixs.flatMap(m => {
-      val yv = m.map(_.sum)
-      val xv = m.reduce(_.zip(_).map(p => p._1 + p._2))
-      Seq(twoNorm(yv), twoNorm(xv))
-    })
+    
+    val yv = matrix.map(_.sum)
+    val xv = matrix.reduce(_.zip(_).map(p => p._1 + p._2))
+    Seq(twoNorm(yv), twoNorm(xv))
+  }
+  
+  private def crossCount(matrix: Seq[Seq[Double]]) = {
+    def countChanges(seq: Seq[Double]) = {
+      seq.map(_ > threshold).sliding(2).count(seq => seq.head != seq.last)
+    }
+    val xChanges = matrix.map(countChanges)
+    val yChanges = matrix.head.indices.map(j => matrix.map(_(j))).map(countChanges)
+    Seq(xChanges.sum / xChanges.size.toDouble, yChanges.sum / yChanges.size.toDouble)
   }
 
-  private def getSubMatrixs(matrix: Array[Array[Double]]) = {
-    matrix.grouped(10).toSeq.map(rowGroup => {
-      rowGroup.map(_.grouped(10).toSeq.map(arr => Seq(arr.toSeq)))
-        .reduceLeft((l, r) => l.zip(r).map(p => p._1 ++ p._2))
-    }).reduceLeft((l, r) => l ++ r)
+  private def getSubMatrices(matrix: Seq[Seq[Double]]) = {
+    matrix.grouped(10).toSeq.flatMap(rowGroup => {
+      val gg = rowGroup.map(_.grouped(10).toSeq)
+      gg.head.indices.map(j => gg.map(_(j)))
+    })
   }
 
   private def getScaledMatrix(sample: Sample) = {
@@ -31,14 +42,14 @@ object FeatureExtractor {
     val bottom = sample.bottom
     val left = sample.left
     val right = sample.right
-    if (top == -1) Array.fill(120, 120)(0.0)
+    if (top == -1) Seq.fill(120, 120)(0.0)
     else {
       val height = bottom - top
       val width = right - left
       val edgeLength = height max width
       val baseI = (top + bottom) / 2 - edgeLength / 2
       val baseJ = (left + right) / 2 - edgeLength / 2
-      Array.tabulate(120, 120)((i, j) => {
+      Seq.tabulate(120, 120)((i, j) => {
         try {
           sample.matrix(baseI + ((i / 120.0) * edgeLength).toInt)(baseJ + ((j / 120.0) * edgeLength).toInt)
         } catch {
