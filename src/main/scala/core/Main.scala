@@ -12,7 +12,14 @@ object Main {
 
   def main(args: Array[String]): Unit = {
     //105x122
-    val rawFiles = Seq("train1", "train-all", "test1", "test2.nolabel")
+    val test1 = Resource.fromFile("test1.f.s").lines().toSeq.map(_.split(" ").head)
+    val test1P = Resource.fromFile("test1.f.s.p").lines().toSeq
+    val out = test1P.zip(test1).zipWithIndex
+      .filter(p => p._1._1 != p._1._2)
+      .map(p => p._2 + " predict:" + p._1._1 + " ans:" + p._1._2)
+    Resource.fromWriter(new FileWriter("test1.err")).writeStrings(out, "\n")
+
+    /*val rawFiles = Seq("train1", "train-all", "test1", "test2.nolabel")
     println("extract features")
     val featureFiles = extractFeature(rawFiles)
     println("svm-scale")
@@ -20,11 +27,13 @@ object Main {
     println("grid.py")
     val (cost, gamma) = grid(scaledFiles.head)
     println("svm-train")
-    val model = svmTrain(scaledFiles(1), cost, gamma)
+    val modelAll = svmTrain(scaledFiles(1), cost, gamma)
     println("svm-predict")
-    svmPredict(scaledFiles.last, model)
+    svmPredict(scaledFiles.last, modelAll)
+    println("svm-train on train1")
+    val model1 = svmTrain(scaledFiles(0), cost, gamma)
     println("svm-predict on test1")
-    svmPredict(scaledFiles(2), model)
+    svmPredict(scaledFiles(2), model1)*/
   }
 
   def extractFeature(filenames: Seq[String]) = {
