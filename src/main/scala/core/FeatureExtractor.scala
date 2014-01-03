@@ -3,7 +3,7 @@ package core
 import scala.Array.canBuildFrom
 
 object FeatureExtractor {
-  val threshold = 0.3
+  val threshold = 0.5
   
   def apply(sample: Sample) = {
     val subMxs = getSubMatrixs(getScaledMatrix(sample))
@@ -25,14 +25,6 @@ object FeatureExtractor {
         .reduceLeft((l, r) => l.zip(r).map(p => p._1 ++ p._2))
     }).reduceLeft((l, r) => l ++ r)
   }
-
-  private def isEmpty(matrix: Array[Array[Double]]) = {
-    matrix.flatMap(r => r).find(_ > 0.3).isEmpty
-  }
-
-  /*private def threshold(matrix: Array[Array[Double]]) = {
-    matrix.map(_.map(c => if (c > 0.3) 1.0 else 0.0))
-  }*/
 
   private def getScaledMatrix(sample: Sample) = {
     val top = sample.top

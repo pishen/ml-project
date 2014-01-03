@@ -12,7 +12,7 @@ object Main {
 
   def main(args: Array[String]): Unit = {
     //105x122
-    val rawFiles = Seq("train-all", "test2.nolabel")
+    val rawFiles = Seq("train1", "train-all", "test1", "test2.nolabel")
     println("extract features")
     val featureFiles = extractFeature(rawFiles)
     println("svm-scale")
@@ -20,9 +20,11 @@ object Main {
     println("grid.py")
     val (cost, gamma) = grid(scaledFiles.head)
     println("svm-train")
-    val model = svmTrain(scaledFiles.head, cost, gamma)
+    val model = svmTrain(scaledFiles(1), cost, gamma)
     println("svm-predict")
     svmPredict(scaledFiles.last, model)
+    println("svm-predict on test1")
+    svmPredict(scaledFiles(2), model)
   }
 
   def extractFeature(filenames: Seq[String]) = {
