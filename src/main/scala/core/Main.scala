@@ -30,9 +30,7 @@ object Main {
       val input = Resource.fromFile(filename).lines()
       Resource.fromWriter(new FileWriter(filename + ".f")).writeStrings({
         input.map(decode _).zipWithIndex.map {
-          case (s, i) =>
-            println(i)
-            encode(s.label, FeatureExtractor(s))
+          case (s, i) => encode(s.label, FeatureExtractor(s))
         }
       }, "\n")
     })
