@@ -8,7 +8,6 @@ object FeatureExtractor {
   def apply(sample: Sample) = {
     val scaledMatrix = getScaledMatrix(sample)
     val subMatrices = getSubMatrices(scaledMatrix)
-    subMatrices.flatMap(projectionWeight) ++
     subMatrices.flatMap(crossCount) ++
     subMatrices.map(_.map(_.sum).sum)
   }
