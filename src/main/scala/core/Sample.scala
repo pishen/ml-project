@@ -1,11 +1,15 @@
 package core
 
 case class Sample(label: Int, matrix: Array[Array[Double]]) {
-  lazy val top = matrix.indexWhere(_.find(_ > 0.3).nonEmpty)
-  lazy val bottom = matrix.lastIndexWhere(_.find(_ > 0.3).nonEmpty)
-  lazy val left = matrix.head.indices.indexWhere(j => matrix.map(_(j)).find(_ > 0.3).nonEmpty)
-  lazy val right = matrix.head.indices.lastIndexWhere(j => matrix.map(_(j)).find(_ > 0.3).nonEmpty)
-  
+  lazy val top =
+    matrix.indexWhere(_.find(_ > FeatureExtractor.threshold).nonEmpty)
+  lazy val bottom =
+    matrix.lastIndexWhere(_.find(_ > FeatureExtractor.threshold).nonEmpty)
+  lazy val left =
+    matrix.head.indices.indexWhere(j => matrix.map(_(j)).find(_ > FeatureExtractor.threshold).nonEmpty)
+  lazy val right =
+    matrix.head.indices.lastIndexWhere(j => matrix.map(_(j)).find(_ > FeatureExtractor.threshold).nonEmpty)
+
   lazy val lost = {
     //lt:0 rt:1 lb:2 rb:3 unknown:4
     val lt = for (i <- 0 to 60; j <- 0 to 51) yield matrix(i)(j)
@@ -17,7 +21,7 @@ case class Sample(label: Int, matrix: Array[Array[Double]]) {
     val res = Seq(lt, rt, lb, rb).map(isLost _)
     if (res.count(lost => lost) != 1) 4 else res.indexWhere(lost => lost)
   }
-  
+
   def getCorner(i: Int) = {
     if (i == 0) {
       matrix.take(61).map(_.take(52))

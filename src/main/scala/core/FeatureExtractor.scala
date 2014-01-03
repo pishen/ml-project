@@ -3,9 +3,10 @@ package core
 import scala.Array.canBuildFrom
 
 object FeatureExtractor {
+  val threshold = 0.3
+  
   def apply(sample: Sample) = {
-    val cornerFilled = LostCornerHandler.tryFillCorner(sample)
-    val subMxs = getSubMatrixs(getScaledMatrix(cornerFilled))
+    val subMxs = getSubMatrixs(getScaledMatrix(sample))
     littleProjectionLength(subMxs) ++ subMxs.map(_.map(_.sum).sum)
   }
 

@@ -12,12 +12,7 @@ object Main {
 
   def main(args: Array[String]): Unit = {
     //105x122
-    val ans1 = Resource.fromFile("ans1.dat").lines().toSeq
-    val test1NoLabel = Resource.fromFile("test1.nolabel").lines().toSeq
-    val test1 = ans1.zip(test1NoLabel).map{case (ans, test) => ans + " " + test.split(" ").tail.mkString(" ")}
-    Resource.fromWriter(new FileWriter("test1")).writeStrings(test1, "\n")
-    
-    /*val rawFiles = Seq("train-all", "test1")
+    val rawFiles = Seq("train-all", "test2.nolabel")
     println("extract features")
     val featureFiles = extractFeature(rawFiles)
     println("svm-scale")
@@ -27,7 +22,7 @@ object Main {
     println("svm-train")
     val model = svmTrain(scaledFiles.head, cost, gamma)
     println("svm-predict")
-    svmPredict(scaledFiles.last, model)*/
+    svmPredict(scaledFiles.last, model)
   }
 
   def extractFeature(filenames: Seq[String]) = {
