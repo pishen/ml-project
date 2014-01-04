@@ -8,12 +8,12 @@ object FeatureExtractor {
   def apply(sample: Sample) = {
     val scaledMatrix = getScaledMatrix(sample)
     //val slicedMatrix = sample.matrix.slice(1, 121).map(_.slice(2, 102))
-    val subMatrices15 = getSubMatrices(scaledMatrix, 15)
+    //val subMatrices15 = getSubMatrices(scaledMatrix, 15)
     val subMatrices10 = getSubMatrices(scaledMatrix, 10)
 
-    subMatrices15.flatMap(crossCount) ++
+    largeCrossVector(scaledMatrix, 5) ++
       subMatrices10.map(_.map(_.sum).sum) ++
-      sideDepth(scaledMatrix, 15)
+      sideDepth(scaledMatrix, 5)
   }
 
   private def projectionWeight(matrix: Seq[Seq[Double]]) = {
@@ -58,6 +58,16 @@ object FeatureExtractor {
       matrix.tail.map(_.head).reverse
     val count = border.map(_ > threshold).sliding(2).count(seq => seq.head != seq.last)
     if (count > 4) 1 else 0
+  }
+  
+  private def largeCrossVector(matrix: Seq[Seq[Double]], size: Int) = {
+    def countChanges(seq: Seq[Double]) = {
+      seq.map(_ > threshold).sliding(2).count(seq => seq.head != seq.last)
+    }
+    val xChanges = matrix.indices.filter(_ % size == 0).map(i => matrix(i)).map(countChanges)
+    val ySeqs = matrix.head.indices.map(j => matrix.map(_(j)))
+    val yChanges = ySeqs.indices.filter(_ % size == 0).map(j => ySeqs(j)).map(countChanges)
+    xChanges.map(_.toDouble) ++ yChanges.map(_.toDouble)
   }
 
   private def crossCount(matrix: Seq[Seq[Double]]) = {
