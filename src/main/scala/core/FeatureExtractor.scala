@@ -28,7 +28,7 @@ object FeatureExtractor {
   private def sideDepth(matrix: Seq[Seq[Double]], size: Int) = {
     def groupAvg(g: Seq[Int]) = {
       val fg = g.filter(_ >= 0)
-      if (fg.nonEmpty) fg.sorted.apply(fg.size / 2).toDouble else -10.0
+      if (fg.nonEmpty) fg.sum / fg.size.toDouble else -10
     }
     val left = matrix.map(_.indexWhere(_ > threshold))
       .grouped(size).toSeq.map(groupAvg)
