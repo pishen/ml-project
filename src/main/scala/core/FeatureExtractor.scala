@@ -13,7 +13,7 @@ object FeatureExtractor {
 
     subMatrices15.flatMap(crossCount) ++
       subMatrices10.map(_.map(_.sum).sum) ++
-      sideDepth(scaledMatrix, 5)
+      sideDepth(scaledMatrix, 15)
   }
 
   private def projectionWeight(matrix: Seq[Seq[Double]]) = {
