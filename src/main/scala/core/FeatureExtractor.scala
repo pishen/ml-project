@@ -8,19 +8,31 @@ object FeatureExtractor {
   def apply(sample: Sample) = {
     val scaledMatrix = getScaledMatrix(sample)
     //val slicedMatrix = sample.matrix.slice(1, 121).map(_.slice(2, 102))
-    val subMatrices = getSubMatrices(scaledMatrix, 15)
-    subMatrices.flatMap(crossCount) ++
-    subMatrices.map(_.map(_.sum).sum)
+    val subMatrices15 = getSubMatrices(scaledMatrix, 15)
+    val subMatrices10 = getSubMatrices(scaledMatrix, 10)
+    
+    subMatrices15.flatMap(crossCount) ++
+      subMatrices10.map(_.map(_.sum).sum) :+
+      subMatrices10.map(borderCross).sum.toDouble
   }
 
   private def projectionWeight(matrix: Seq[Seq[Double]]) = {
     def twoNorm(v: Seq[Double]) = v.map(i => i * i).sum
-    
+
     val yv = matrix.map(_.sum)
     val xv = matrix.reduce(_.zip(_).map(p => p._1 + p._2))
     Seq(twoNorm(yv), twoNorm(xv))
   }
-  
+
+  private def borderCross(matrix: Seq[Seq[Double]]) = {
+    val border = matrix.head.init ++
+      matrix.init.map(_.last) ++
+      matrix.last.tail.reverse ++
+      matrix.tail.map(_.head).reverse
+    val count = border.map(_ > threshold).sliding(2).count(seq => seq.head != seq.last)
+    if(count > 4) 1 else 0
+  }
+
   private def crossCount(matrix: Seq[Seq[Double]]) = {
     def countChanges(seq: Seq[Double]) = {
       seq.map(_ > threshold).sliding(2).count(seq => seq.head != seq.last)
