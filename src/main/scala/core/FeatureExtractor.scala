@@ -6,8 +6,9 @@ object FeatureExtractor {
   val threshold = 0.5
 
   def apply(sample: Sample) = {
-    val scaledMatrix = getScaledMatrix(sample)
-    val subMatrices = getSubMatrices(scaledMatrix)
+    //val scaledMatrix = getScaledMatrix(sample)
+    val slicedMatrix = sample.matrix.slice(1, 121).map(_.slice(2, 102))
+    val subMatrices = getSubMatrices(slicedMatrix, 10)
     subMatrices.flatMap(crossCount) ++
     subMatrices.map(_.map(_.sum).sum)
   }
@@ -29,9 +30,9 @@ object FeatureExtractor {
     Seq(xChanges.sum / xChanges.size.toDouble, yChanges.sum / yChanges.size.toDouble)
   }
 
-  private def getSubMatrices(matrix: Seq[Seq[Double]]) = {
-    matrix.grouped(10).toSeq.flatMap(rowGroup => {
-      val gg = rowGroup.map(_.grouped(10).toSeq)
+  private def getSubMatrices(matrix: Seq[Seq[Double]], size: Int) = {
+    matrix.grouped(size).toSeq.flatMap(rowGroup => {
+      val gg = rowGroup.map(_.grouped(size).toSeq)
       gg.head.indices.map(j => gg.map(_(j)))
     })
   }
