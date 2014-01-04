@@ -13,7 +13,7 @@ object FeatureExtractor {
 
     subMatrices15.flatMap(crossCount) ++
       subMatrices10.map(_.map(_.sum).sum) ++
-      sideDepth(scaledMatrix)
+      sideDepth(scaledMatrix, 5)
   }
 
   private def projectionWeight(matrix: Seq[Seq[Double]]) = {
@@ -24,19 +24,19 @@ object FeatureExtractor {
     Seq(twoNorm(yv), twoNorm(xv))
   }
 
-  private def sideDepth(matrix: Seq[Seq[Double]]) = {
+  private def sideDepth(matrix: Seq[Seq[Double]], size: Int) = {
     def groupAvg(g: Seq[Int]) = {
       val fg = g.filter(_ >= 0)
       if (fg.nonEmpty) fg.sum / fg.size.toDouble else -10
     }
     val left = matrix.map(_.indexWhere(_ > threshold))
-      .grouped(10).toSeq.map(groupAvg)
+      .grouped(size).toSeq.map(groupAvg)
     val right = matrix.map(_.reverse.indexWhere(_ > threshold))
-      .grouped(10).toSeq.map(groupAvg)
+      .grouped(size).toSeq.map(groupAvg)
     val top = matrix.head.indices.map(j => matrix.map(_(j))).map(_.indexWhere(_ > threshold))
-      .grouped(10).toSeq.map(groupAvg)
+      .grouped(size).toSeq.map(groupAvg)
     val bottom = matrix.head.indices.map(j => matrix.map(_(j))).map(_.reverse.indexWhere(_ > threshold))
-      .grouped(10).toSeq.map(groupAvg)
+      .grouped(size).toSeq.map(groupAvg)
     left ++ right ++ top ++ bottom
   }
 
