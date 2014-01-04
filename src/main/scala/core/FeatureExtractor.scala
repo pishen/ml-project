@@ -12,8 +12,8 @@ object FeatureExtractor {
     val subMatrices10 = getSubMatrices(scaledMatrix, 10)
     
     subMatrices15.flatMap(crossCount) ++
-      subMatrices10.map(_.map(_.sum).sum) :+
-      subMatrices10.map(borderCross).sum.toDouble
+      subMatrices10.map(_.map(_.sum).sum) ++
+      subMatrices10.flatMap(borderDirection).map(_.toDouble)
   }
 
   private def projectionWeight(matrix: Seq[Seq[Double]]) = {
@@ -24,6 +24,17 @@ object FeatureExtractor {
     Seq(twoNorm(yv), twoNorm(xv))
   }
 
+  private def borderDirection(matrix: Seq[Seq[Double]]) = {
+    def count(seq: Seq[Double]) = {
+      seq.map(_ > threshold).sliding(2).count(seq => seq.head != seq.last)
+    }
+    val top = matrix.head.init
+    val right = matrix.init.map(_.last)
+    val bottom = matrix.last.tail.reverse
+    val left = matrix.tail.map(_.head).reverse
+    Seq(top, right, bottom, left).map(count)
+  }
+  
   private def borderCross(matrix: Seq[Seq[Double]]) = {
     val border = matrix.head.init ++
       matrix.init.map(_.last) ++
