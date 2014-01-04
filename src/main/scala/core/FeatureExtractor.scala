@@ -8,12 +8,12 @@ object FeatureExtractor {
   def apply(sample: Sample) = {
     val scaledMatrix = getScaledMatrix(sample)
     //val slicedMatrix = sample.matrix.slice(1, 121).map(_.slice(2, 102))
-    //val subMatrices15 = getSubMatrices(scaledMatrix, 15)
+    val subMatrices15 = getSubMatrices(scaledMatrix, 15)
     val subMatrices10 = getSubMatrices(scaledMatrix, 10)
 
-    largeCrossVector(scaledMatrix, 5) ++
+    subMatrices15.flatMap(crossCount) ++
       subMatrices10.map(_.map(_.sum).sum) ++
-      sideDepth(scaledMatrix, 5)
+      sideDepth(scaledMatrix, 3)
   }
 
   private def projectionWeight(matrix: Seq[Seq[Double]]) = {
