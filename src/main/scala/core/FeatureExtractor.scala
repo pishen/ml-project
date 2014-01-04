@@ -10,10 +10,10 @@ object FeatureExtractor {
     //val slicedMatrix = sample.matrix.slice(1, 121).map(_.slice(2, 102))
     val subMatrices15 = getSubMatrices(scaledMatrix, 15)
     val subMatrices10 = getSubMatrices(scaledMatrix, 10)
-    
+
     subMatrices15.flatMap(crossCount) ++
       subMatrices10.map(_.map(_.sum).sum) ++
-      subMatrices10.flatMap(borderDirection).map(_.toDouble)
+      sideDepth(scaledMatrix)
   }
 
   private def projectionWeight(matrix: Seq[Seq[Double]]) = {
@@ -22,6 +22,22 @@ object FeatureExtractor {
     val yv = matrix.map(_.sum)
     val xv = matrix.reduce(_.zip(_).map(p => p._1 + p._2))
     Seq(twoNorm(yv), twoNorm(xv))
+  }
+
+  private def sideDepth(matrix: Seq[Seq[Double]]) = {
+    def groupAvg(g: Seq[Int]) = {
+      val fg = g.filter(_ >= 0)
+      if (fg.nonEmpty) fg.sum / fg.size.toDouble else -10
+    }
+    val left = matrix.map(_.indexWhere(_ > threshold))
+      .grouped(10).toSeq.map(groupAvg)
+    val right = matrix.map(_.reverse.indexWhere(_ > threshold))
+      .grouped(10).toSeq.map(groupAvg)
+    val top = matrix.head.indices.map(j => matrix.map(_(j))).map(_.indexWhere(_ > threshold))
+      .grouped(10).toSeq.map(groupAvg)
+    val bottom = matrix.head.indices.map(j => matrix.map(_(j))).map(_.reverse.indexWhere(_ > threshold))
+      .grouped(10).toSeq.map(groupAvg)
+    left ++ right ++ top ++ bottom
   }
 
   private def borderDirection(matrix: Seq[Seq[Double]]) = {
@@ -34,14 +50,14 @@ object FeatureExtractor {
     val left = matrix.tail.map(_.head).reverse
     Seq(top, right, bottom, left).map(count)
   }
-  
+
   private def borderCross(matrix: Seq[Seq[Double]]) = {
     val border = matrix.head.init ++
       matrix.init.map(_.last) ++
       matrix.last.tail.reverse ++
       matrix.tail.map(_.head).reverse
     val count = border.map(_ > threshold).sliding(2).count(seq => seq.head != seq.last)
-    if(count > 4) 1 else 0
+    if (count > 4) 1 else 0
   }
 
   private def crossCount(matrix: Seq[Seq[Double]]) = {
