@@ -6,9 +6,9 @@ object FeatureExtractor {
   val threshold = 0.5
 
   def apply(sample: Sample) = {
-    //val scaledMatrix = getScaledMatrix(sample)
-    val slicedMatrix = sample.matrix.slice(1, 121).map(_.slice(2, 102))
-    val subMatrices = getSubMatrices(slicedMatrix, 10)
+    val scaledMatrix = getScaledMatrix(sample)
+    //val slicedMatrix = sample.matrix.slice(1, 121).map(_.slice(2, 102))
+    val subMatrices = getSubMatrices(scaledMatrix, 15)
     subMatrices.flatMap(crossCount) ++
     subMatrices.map(_.map(_.sum).sum)
   }
