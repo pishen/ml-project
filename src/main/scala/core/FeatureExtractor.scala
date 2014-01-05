@@ -11,8 +11,9 @@ object FeatureExtractor {
     val subMatrices15 = getSubMatrices(scaledMatrix, 15)
     val subMatrices10 = getSubMatrices(scaledMatrix, 10)
 
-    largeCrossVector(scaledMatrix, 5) ++
+    largeCrossVector(scaledMatrix, 3) ++
       subMatrices15.flatMap(crossCount) ++
+      subMatrices10.flatMap(projectionWeight) ++
       subMatrices10.map(_.map(_.sum).sum) ++
       sideDepth(scaledMatrix, 5)
   }
